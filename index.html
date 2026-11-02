@@ -1,0 +1,433 @@
+<title>Test 1 · El tren FGC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap">
+<style>
+/* Concepte: quadre de comandament ferroviari. Blau de senyalització, verd/vermell/groc només per a l'estat. */
+:root {
+  --bg: #EDF0F5; --surface: #FFFFFF; --surface-2: #F4F6FA; --fg: #0F1B2D; --muted: #53607A; --line: #D3DAE6;
+  --accent: #0B3C7A; --accent-fg: #FFFFFF;
+  --ok: #14663A; --ok-bg: #DDF3E5; --bad: #A3261C; --bad-bg: #FBE3E0; --warn: #7A4F00; --warn-bg: #FFF0CC;
+  --f-display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --f-body: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0C1420; --surface: #141F30; --surface-2: #1A2740; --fg: #E7ECF5; --muted: #9AA8BF; --line: #26354D;
+    --accent: #7FB0FF; --accent-fg: #07182F;
+    --ok: #6FD39A; --ok-bg: #123325; --bad: #FF8A80; --bad-bg: #3A1815; --warn: #F2C14E; --warn-bg: #3A2D0A;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0C1420; --surface: #141F30; --surface-2: #1A2740; --fg: #E7ECF5; --muted: #9AA8BF; --line: #26354D;
+  --accent: #7FB0FF; --accent-fg: #07182F;
+  --ok: #6FD39A; --ok-bg: #123325; --bad: #FF8A80; --bad-bg: #3A1815; --warn: #F2C14E; --warn-bg: #3A2D0A;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--surface); }
+button { font: inherit; color: inherit; }
+.wrap { max-width: 760px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 16px 40px; }
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--surface); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 760px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); }
+.brand { font-family: var(--f-display); font-weight: 700; font-size: 20px; letter-spacing: .02em; text-transform: uppercase; display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.brand small { font-family: var(--f-body); font-weight: 500; font-size: 12px; color: var(--muted); text-transform: none; letter-spacing: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tabs { display: flex; gap: 4px; }
+.tab { border: 1px solid var(--line); background: transparent; border-radius: 6px; padding: 6px 12px; font-weight: 600; font-size: 14px; cursor: pointer; min-height: 36px; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 700; line-height: 1.1; margin: 0; text-wrap: balance; }
+h1 { font-size: 34px; text-transform: uppercase; letter-spacing: .01em; }
+h2 { font-size: 24px; }
+h3 { font-size: 19px; }
+.lead { color: var(--muted); margin: 8px 0 0; max-width: 62ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+[hidden] { display: none !important; }
+.stack { display: grid; gap: 16px; }
+.row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+.modes { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+.mode { display: block; position: relative; border: 2px solid var(--line); border-radius: 10px; padding: 12px 14px; cursor: pointer; background: var(--surface-2); }
+.mode input { position: absolute; opacity: 0; }
+.mode:has(input:checked) { border-color: var(--accent); background: var(--surface); }
+.mode:has(input:focus-visible) { outline: 3px solid var(--accent); outline-offset: 2px; }
+.mode b { font-family: var(--f-display); font-size: 20px; display: block; }
+.mode span { color: var(--muted); font-size: 14px; }
+select, .btn, .chip { min-height: 44px; }
+select { width: 100%; border: 1px solid var(--line); background: var(--surface-2); color: var(--fg); border-radius: 8px; padding: 8px 10px; font: inherit; }
+.check { display: flex; gap: 10px; align-items: center; min-height: 44px; cursor: pointer; }
+.check input { width: 20px; height: 20px; accent-color: var(--accent); }
+.btn { border: 2px solid var(--accent); background: var(--accent); color: var(--accent-fg); border-radius: 8px; padding: 10px 18px; font-weight: 600; font-size: 16px; cursor: pointer; }
+.btn.ghost { background: transparent; color: var(--fg); border-color: var(--line); }
+.btn.ghost:hover { border-color: var(--accent); }
+.btn:disabled { opacity: .4; cursor: default; }
+.btn:focus-visible, .tab:focus-visible, .opt:focus-visible, .nav-n:focus-visible, .chip:focus-visible, select:focus-visible, textarea:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.grow { flex: 1 1 160px; }
+.progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress > i { display: block; height: 100%; background: var(--accent); transition: width .2s; }
+.q-meta { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; flex-wrap: wrap; }
+.q-n { font-family: var(--f-display); font-size: 22px; font-weight: 700; }
+.q-text { font-size: 19px; font-weight: 500; line-height: 1.4; margin: 12px 0 14px; }
+.opts { display: grid; gap: 10px; }
+.opt { display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; background: var(--surface); border: 2px solid var(--line); border-radius: 10px; padding: 12px; min-height: 52px; cursor: pointer; }
+.opt-l { flex: none; width: 30px; height: 30px; border-radius: 6px; display: grid; place-items: center; background: var(--surface-2); border: 1px solid var(--line); font-family: var(--f-display); font-weight: 700; font-size: 17px; }
+.opt-t { min-width: 0; overflow-wrap: anywhere; padding-top: 2px; }
+.opt:hover:not(:disabled) { border-color: var(--accent); }
+.opt.sel { border-color: var(--accent); background: var(--surface-2); }
+.opt.sel .opt-l { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.opt.ok { border-color: var(--ok); background: var(--ok-bg); }
+.opt.ok .opt-l { background: var(--ok); color: var(--surface); border-color: var(--ok); }
+.opt.bad { border-color: var(--bad); background: var(--bad-bg); }
+.opt.bad .opt-l { background: var(--bad); color: var(--surface); border-color: var(--bad); }
+.opt:disabled { cursor: default; color: var(--fg); }
+.fb { border-radius: 10px; padding: 14px; margin-top: 14px; border: 1px solid var(--line); background: var(--surface-2); }
+.fb.good { border-color: var(--ok); background: var(--ok-bg); }
+.fb.wrong { border-color: var(--bad); background: var(--bad-bg); }
+.fb p { margin: 6px 0 0; }
+.where { margin-top: 10px; font-size: 14px; color: var(--muted); border-top: 1px dashed var(--line); padding-top: 8px; }
+.where b { color: var(--fg); }
+.navgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(38px, 1fr)); gap: 6px; }
+.nav-n { min-height: 38px; border: 1px solid var(--line); background: var(--surface); border-radius: 6px; font-weight: 600; cursor: pointer; font-variant-numeric: tabular-nums; }
+.nav-n.done { background: var(--surface-2); border-color: var(--accent); }
+.nav-n.ok { background: var(--ok-bg); border-color: var(--ok); }
+.nav-n.bad { background: var(--bad-bg); border-color: var(--bad); }
+.nav-n.cur { outline: 3px solid var(--accent); outline-offset: 1px; }
+.confirm { border: 2px solid var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 14px; }
+.score { display: grid; gap: 12px; }
+.grade { font-family: var(--f-display); font-weight: 700; font-size: 72px; line-height: 1; font-variant-numeric: tabular-nums; }
+.grade small { font-size: 28px; color: var(--muted); }
+.pill { display: inline-block; font-weight: 700; font-size: 14px; letter-spacing: .06em; text-transform: uppercase; padding: 4px 12px; border-radius: 999px; }
+.pill.pass { background: var(--ok-bg); color: var(--ok); border: 1px solid var(--ok); }
+.pill.fail { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 10px; }
+.stat { background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; }
+.stat b { display: block; font-family: var(--f-display); font-size: 28px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.bars { display: grid; gap: 10px; }
+.bar-h { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; }
+.bar { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin-top: 4px; }
+.bar > i { display: block; height: 100%; background: var(--ok); }
+.bar.low > i { background: var(--bad); }
+.bar.mid > i { background: var(--warn); }
+.chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.chip { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; cursor: pointer; }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+.rev { display: grid; gap: 12px; }
+.rev-item { background: var(--surface); border: 1px solid var(--line); border-left: 6px solid var(--bad); border-radius: 10px; padding: 14px; }
+.rev-item.okk { border-left-color: var(--ok); }
+.rev-item.blk { border-left-color: var(--warn); }
+.rev-item .tag { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.rev-item .qt { font-weight: 600; margin: 4px 0 8px; }
+.ans { font-size: 15px; margin: 4px 0; overflow-wrap: anywhere; }
+.ans .yes { color: var(--ok); font-weight: 700; }
+.ans .no { color: var(--bad); font-weight: 700; }
+.note { font-size: 14px; color: var(--muted); }
+.note a { color: var(--accent); }
+.dev { display: grid; gap: 14px; }
+textarea { width: 100%; min-height: 120px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface-2); color: var(--fg); padding: 10px; font: inherit; resize: vertical; }
+.model { margin-top: 12px; border-top: 1px dashed var(--line); padding-top: 10px; }
+.model ul { margin: 8px 0 0; padding-left: 20px; display: grid; gap: 6px; }
+.dev-ref { font-size: 13px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { .progress > i { transition: none; } }
+@media (max-width: 480px) { h1 { font-size: 28px; } .grade { font-size: 60px; } .q-text { font-size: 18px; } }
+@media (max-width: 480px) { .brand small { display: none; } }
+</style>
+
+<header class="top"><div class="top-in">
+  <div class="brand">Tren <small>Tipus i parts fonamentals · FGC</small></div>
+  <div class="tabs" role="tablist">
+    <button class="tab" id="tab-test" role="tab" aria-selected="true" type="button">Test</button>
+    <button class="tab" id="tab-dev" role="tab" aria-selected="false" type="button">Desenvolupament</button>
+  </div>
+</div></header>
+
+<main class="wrap">
+
+<section id="v-home" class="stack">
+  <div>
+    <h1>Simulacre de test</h1>
+    <p class="lead">Preguntes tipus test sobre la presentació «El tren. Tipus i parts fonamentals» d'FGC. Mode examen (nota amb penalització) i mode estudi (resposta i explicació al moment), per blocs. A cada error, l'explicació i la diapositiva exacta on trobar-ho.</p>
+  </div>
+  <div class="card stack">
+    <div class="label">Mode</div>
+    <div class="modes">
+      <label class="mode"><input type="radio" name="mode" value="exam" checked><b>Examen</b><span>Sense pistes. Corregeix al final amb la nota real: encert +1, error −0,25, en blanc 0.</span></label>
+      <label class="mode"><input type="radio" name="mode" value="study"><b>Estudi</b><span>Respostes i explicació al moment, pregunta a pregunta.</span></label>
+    </div>
+    <div>
+      <label class="label" for="sel-bloc">Bloc de la presentació</label>
+      <select id="sel-bloc"></select>
+    </div>
+    <div><label class="label" for="sel-n">Quantes preguntes</label><select id="sel-n"><option value="0">Totes les del bloc</option><option value="50">50 a l'atzar</option><option value="25">25 a l'atzar</option><option value="10">10 a l'atzar</option></select></div>
+    <label class="check"><input type="checkbox" id="chk-shuffle" checked> Barrejar l'ordre de les preguntes</label>
+    <div class="row">
+      <button class="btn grow" id="btn-start" type="button">Començar</button>
+      <button class="btn ghost grow" id="btn-resume" type="button" hidden>Continuar el test</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Com es puntua</h3>
+    <p class="note" style="margin:8px 0 0">Mateix criteri que les bases de la convocatòria de maquinista d'FGC 2023: cada encert suma 1, cada error resta 0,25 i en blanc val 0. L'objectiu d'aquest simulacre és una nota de <b>7 sobre 10 o més</b>. Si dubtes entre dues opcions, pensa què pots justificar amb la presentació.</p>
+  </div>
+</section>
+
+<section id="v-quiz" class="stack" hidden>
+  <div class="card">
+    <div class="q-meta"><span class="q-n" id="q-count"></span><span class="label" id="q-sec"></span></div>
+    <div class="progress" style="margin-top:10px" aria-hidden="true"><i id="q-bar"></i></div>
+    <div class="q-text" id="q-text"></div>
+    <div class="opts" id="q-opts"></div>
+    <div id="q-fb" hidden></div>
+  </div>
+  <div class="row">
+    <button class="btn ghost grow" id="btn-prev" type="button">Anterior</button>
+    <button class="btn grow" id="btn-next" type="button">Següent</button>
+  </div>
+  <div id="confirm" class="confirm" hidden>
+    <b id="confirm-t"></b>
+    <div class="row" style="margin-top:10px">
+      <button class="btn grow" id="btn-confirm" type="button">Corregir ara</button>
+      <button class="btn ghost grow" id="btn-back" type="button">Seguir revisant</button>
+    </div>
+  </div>
+  <div class="card stack">
+    <div class="label">Navegador de preguntes</div>
+    <div class="navgrid" id="navgrid"></div>
+    <div class="row">
+      <button class="btn ghost grow" id="btn-finish" type="button">Finalitzar i corregir</button>
+      <button class="btn ghost grow" id="btn-home" type="button">Sortir al menú</button>
+    </div>
+  </div>
+</section>
+
+<section id="v-result" class="stack" hidden>
+  <div class="card score" id="res-card"></div>
+  <div class="card stack"><h3>Resultat per blocs</h3><div class="bars" id="res-bars"></div></div>
+  <div class="stack">
+    <h2>Revisió de respostes</h2>
+    <div class="chips" id="res-filter">
+      <button class="chip" data-f="fail" aria-pressed="true" type="button">Errors i en blanc</button>
+      <button class="chip" data-f="ok" aria-pressed="false" type="button">Encerts</button>
+      <button class="chip" data-f="all" aria-pressed="false" type="button">Totes</button>
+    </div>
+    <div class="rev" id="res-list"></div>
+  </div>
+  <div class="row">
+    <button class="btn grow" id="btn-retry" type="button">Repetir errors i en blanc</button>
+    <button class="btn ghost grow" id="btn-new" type="button">Nou test</button>
+  </div>
+  <p class="note">Les referències són números de diapositiva de la presentació «El tren. Tipus i parts fonamentals».</p>
+</section>
+
+<section id="v-dev" class="stack" hidden>
+  <div>
+    <h1>Desenvolupament</h1>
+    <p class="lead">Escriu la teva resposta abans de mirar el model. Cada pregunta es valora sobre 10 punts segons els punts clau.</p>
+  </div>
+  <div class="dev" id="dev-list"></div>
+</section>
+
+</main>
+
+<script>
+(function () {
+  var D = {"q": [{"sec": 6, "text": "Quina funció té la suspensió primària del bogi?", "opts": ["Assegurar la connexió entre les rodes i els carrils", "Mantenir la caixa a una alçada sempre constant", "Proporcionar el màxim confort als viatgers del tren", "Repartir el pes de la travessa de càrrega als eixos"], "ans": 0, "expl": "La suspensió primària és la de seguretat: assegura la connexió roda-carril i absorbeix els desperfectes del carril.", "loc": "Diap. 120 · Suspensió primària"}, {"sec": 1, "text": "Quin sistema de control de la potència de tracció, de tipus electrònic, equipa les UT 111?", "opts": ["El sistema Chopper", "El sistema informàtic Cosmos", "El sistema manual", "El sistema informàtic FLG/ALG"], "ans": 0, "expl": "Les UT 111 porten el sistema Chopper, que és un element electrònic.", "loc": "Diap. 13 · Sistemes de control de la potència de tracció"}, {"sec": 4, "text": "Quin tipus d'enganxall s'utilitza per unir els cotxes d'una UT que han de circular sempre units?", "opts": ["Automàtic", "Semipermanent", "Semiautomàtic", "Manual amb tensors"], "ans": 1, "expl": "Els enganxalls semipermanents uneixen les composicions destinades a circular sempre unides, com els cotxes de les UT.", "loc": "Diap. 75 · Els enganxalls. Tipus · Semipermanents"}, {"sec": 7, "text": "En la nomenclatura del costat ascendent i descendent, a quina via correspon el costat ascendent?", "opts": ["A la via 3", "A la via 1", "A la via 2", "A la via 4"], "ans": 1, "expl": "La diapositiva indica Ascendent = via 1 i Descendent = via 2.", "loc": "Diap. 145 · Costat ascendent i descendent"}, {"sec": 3, "text": "Quins elements s'allotgen al bastidor de la caixa?", "opts": ["Dipòsits d'aire comprimit, motor dièsel i seients", "Dipòsits d'aire, compressors i convertidors elèctrics", "Seients, compressors i convertidors elèctrics del tren", "Altaveus, intercomunicadors i dipòsits d'aire comprimit"], "ans": 1, "expl": "El bastidor allotja dipòsits d'aire comprimit, compressors, convertidors elèctrics, circuits pneumàtics i elèctrics i altres elements.", "loc": "Diap. 67 · El bastidor de la caixa"}, {"sec": 7, "text": "Com es numera el cotxe remolc intermedi (Ri) d'una UT 113?", "opts": ["123.XX", "183.XX", "113.XX+50", "182.XX"], "ans": 1, "expl": "A la UT 113 els cotxes són M1 113.XX, Mi 123.XX, Ri 183.XX i M2 113.XX+50; el 182.XX és el Ri de la UT 112.", "loc": "Diap. 147 · Numeració de bogis, eixos i cotxes"}, {"sec": 4, "text": "Quina és la funció principal dels enganxalls d'un tren?", "opts": ["Mantenir unides les rodes i els eixos a la caixa del tren", "Amortir els cops entre la caixa i el bastidor del vehicle", "Unir cotxes, vagons, locomotores o unitats de tren", "Transmetre la tracció dels motors a les rodes del bogi"], "ans": 2, "expl": "Els enganxalls permeten la unió entre els diferents cotxes, vagons, locomotores o unitats de tren.", "loc": "Diap. 74 · Els enganxalls"}, {"sec": 5, "text": "Sobre quin element es recolzen els dos extrems de la travessa de càrrega?", "opts": ["Sobre la suspensió primària del bogi", "Sobre la suspensió secundària", "Sobre els motors de tracció del bogi", "Sobre les caixes de greix dels eixos"], "ans": 1, "expl": "Els dos extrems de la travessa de càrrega es recolzen sobre la suspensió secundària.", "loc": "Diap. 104 · El bogi. Parts · Travessa de càrrega"}, {"sec": 1, "text": "Quins sistemes del tren necessiten aire comprimit per al seu funcionament?", "opts": ["La climatització, els para-sols i el seient", "Els frens, les sorreres i la suspensió", "Els voltímetres, els manòmetres i els esforcímetres", "L'enllumenat, la megafonia i la radiotelefonia"], "ans": 1, "expl": "La presentació cita els frens, les sorreres i la suspensió com a sistemes que necessiten aire comprimit.", "loc": "Diap. 10 · Sistemes de producció d'electricitat i aire comprimit"}, {"sec": 4, "text": "Quines tres connexions mostra l'enganxall automàtic de la UT213?", "opts": ["Mecànica, pneumàtica i de ràdio", "Elèctrica, pneumàtica i de ràdio", "Elèctrica, mecànica i hidràulica", "Elèctrica, mecànica i pneumàtica"], "ans": 3, "expl": "La diapositiva de la UT213 etiqueta la connexió elèctrica, la mecànica i la pneumàtica.", "loc": "Diap. 78 · Els enganxalls. Tipus · Automàtics UT213"}, {"sec": 3, "text": "On es troben els elements de conducció d'una locomotora?", "opts": ["A la sala de màquines", "A la cabina de conducció", "Al bogi o carretó", "Al bastidor sota la caixa"], "ans": 1, "expl": "La cabina de conducció és l'espai de la caixa de la locomotora on hi ha els elements de conducció.", "loc": "Diap. 56 · La caixa de la locomotora"}, {"sec": 6, "text": "Quins són els tres elements amb què el bogi realitza la tracció del tren?", "opts": ["El motor de tracció, els eixos de rodolament i les rodes", "Els eixos de rodolament, les rodes i els frens de disc", "El motor de tracció, la suspensió i els eixos de rodolament", "El motor de tracció, els bolons i les rodes"], "ans": 0, "expl": "Per a la tracció, el bogi disposa del motor de tracció, dels eixos de rodolament i de les rodes.", "loc": "Diap. 127 · Elements de tracció"}, {"sec": 5, "text": "Com actua la travessa de càrrega respecte als moviments relatius entre la caixa i el bogi?", "opts": ["Com una biga fixa que impedeix aquests moviments del tren", "Com una biga oscil·lant que assegura aquests moviments", "Com una biela rígida que limita aquests moviments del tren", "Com una barra de torsió que frena aquests moviments del tren"], "ans": 1, "expl": "La travessa de càrrega actua com una biga oscil·lant i assegura els moviments entre la caixa i el bogi.", "loc": "Diap. 103 · El bogi. Parts · Travessa de càrrega"}, {"sec": 5, "text": "Quin element s'insereix a la travessa de càrrega i està fixat a la caixa?", "opts": ["La biela d'arrossegament", "La barra de torsió", "La caixa de greix", "La corona de gir"], "ans": 3, "expl": "La travessa de càrrega és una travessa de ferro on s'insereix la corona de gir, que està fixada a la caixa.", "loc": "Diap. 103 · El bogi. Parts · Travessa de càrrega"}, {"sec": 4, "text": "Quines connexions té l'enganxall Scharfenburg?", "opts": ["Només mecànica i pneumàtica", "Només mecànica i elèctrica", "Mecànica, elèctrica i hidràulica", "Mecànica, pneumàtica i elèctrica"], "ans": 3, "expl": "La diapositiva etiqueta les connexions mecànica, pneumàtica i elèctrica (i, a part, la tapa).", "loc": "Diap. 80 · Els enganxalls. Tipus · Enganxall Scharfenburg"}, {"sec": 4, "text": "Per què s'anomenen «automàtics» aquests enganxalls?", "opts": ["Perquè els tensors es regulen sols amb la tracció del tren", "Perquè no cal operari: s'enganxen sols en topar", "Perquè necessiten un operari que els enganxi a mà", "Perquè s'enganxen i es desenganxen sols des de la cabina"], "ans": 1, "expl": "Són automàtics perquè no cal cap operari per fer l'enganxament: s'enganxen sols quan els vehicles topen.", "loc": "Diap. 76 · Els enganxalls. Tipus · Automàtics"}, {"sec": 6, "text": "Quina és la funció de la vàlvula compensadora, situada entre els dos coixins de la suspensió secundària?", "opts": ["Aïllar un coixí de l'altre en cas de trencament d'un dels dos", "Evitar que la pressió dels coixins superi el valor màxim", "Impedir que hi hagi diferència de pressions entre els coixins", "Alimentar d'aire els dos coixins des del dipòsit principal"], "ans": 2, "expl": "La vàlvula compensadora iguala la pressió dels dos coixins pneumàtics; si un es trenca, el coixí contrari comunica amb l'atmosfera.", "loc": "Diap. 125 · Vàlvula compensadora"}, {"sec": 7, "text": "Entre les UT 112, 113 i 114, quina no té cotxe remolc intermedi (Ri), sinó només M1, Mi i M2?", "opts": ["UT 112", "Totes tres en tenen", "UT 114", "UT 113"], "ans": 2, "expl": "Les UT 112 i 113 tenen quatre cotxes (M1, Mi, Ri i M2), mentre que la UT 114 en té només tres (114.XX, 124.XX i 114.XX+50).", "loc": "Diap. 147 · Numeració de bogis, eixos i cotxes"}, {"sec": 4, "text": "On se situen els enganxalls d'un vehicle ferroviari?", "opts": ["A la part superior de cada bogi", "A cada extrem del bastidor", "Al centre del bastidor de la caixa", "A cada costat del sostre de la caixa"], "ans": 1, "expl": "Els enganxalls són a cada extrem del bastidor de la caixa.", "loc": "Diap. 74 · Els enganxalls"}, {"sec": 4, "text": "Quin element serveix per descoblar l'enganxall automàtic de les UT112-113?", "opts": ["La maneta de descoblament", "El tensor manual de descoblament", "El ganxo de descoblament lateral", "La tapa de protecció de l'enganxall"], "ans": 0, "expl": "A la diapositiva de les UT112-113 s'hi assenyala la maneta de descoblament, a més de les connexions mecànica i pneumàtica.", "loc": "Diap. 77 · Els enganxalls. Tipus · Automàtics UT112-113"}, {"sec": 5, "text": "Quantes bieles d'arrossegament hi ha i entre quins elements estan disposades?", "opts": ["Dues bieles longitudinals entre la travessa de càrrega i la caixa del tren", "Dues bieles longitudinals entre el bastidor del bogi i la travessa de càrrega", "Quatre bieles longitudinals entre el bastidor del bogi i la caixa de greix", "Dues bieles transversals entre el bastidor del bogi i la travessa de càrrega del bogi"], "ans": 1, "expl": "Són dues bieles longitudinals disposades entre el bastidor del bogi i la travessa de càrrega.", "loc": "Diap. 113 · El bogi. Parts · Bieles d'arrossegament"}, {"sec": 5, "text": "Quins dels dispositius següents són dispositius de confort que actuen sobre la travessa de càrrega?", "opts": ["Els greixadors de pestanya del bogi", "Les caixes de greix", "Les sorreres del bogi", "Els amortidors transversals"], "ans": 3, "expl": "Sobre la travessa actuen la suspensió pneumàtica secundària, els amortidors verticals i transversals, el dispositiu antibalanceig i l'esforç del motor de tracció.", "loc": "Diap. 105 · El bogi. Parts · Travessa de càrrega"}, {"sec": 6, "text": "Quina part de la roda acaba a l'interior i assegura la fixació al carril?", "opts": ["El greixador", "La pestanya", "La banda de rodolament", "El cos de roda"], "ans": 1, "expl": "La roda acaba a la part interior amb una pestanya que n'assegura la fixació al carril.", "loc": "Diap. 131-133 · Les rodes"}, {"sec": 3, "text": "Quins elements de seguretat permeten als passatgers avisar el personal del tren?", "opts": ["El teleindicador de costat de portes i les càmeres de televisió", "L'enllumenat interior i els monitors de pròxima estació", "Els altaveus de missatges i els distribuïdors d'aire condicionat", "La maneta d'alarma i l'intercomunicador amb el maquinista"], "ans": 3, "expl": "Els elements de seguretat són la maneta d'alarma dels passatgers i l'intercomunicador amb el maquinista.", "loc": "Diap. 62 · Departament de viatgers"}, {"sec": 3, "text": "Quin equipament té un cotxe remolc intermedi (CRi) d'una UT?", "opts": ["Cabina de conducció i departament de viatgers", "Només el departament de viatgers", "Departament de viatgers i motors de tracció", "Cabina de conducció i motors de tracció"], "ans": 1, "expl": "El cotxe remolc intermedi només disposa de departament de viatgers (sense cabina ni motors de tracció).", "loc": "Diap. 58 · Caixa de les unitats de tren (UT)"}, {"sec": 2, "text": "Quina unitat de tren circula a la línia LA?", "opts": ["La 112", "La 213", "La 115", "La 331"], "ans": 1, "expl": "La diapositiva associa les unitats 213 amb la línia LA.", "loc": "Diap. 43 · Unitats 213 – Línia LA"}, {"sec": 5, "text": "Quina és la funció del bastidor del bogi?", "opts": ["Absorbir els cops de les vies i unir la caixa amb els enganxalls", "Resistir el pes dels viatgers i unir les caixes de greix amb la caixa", "Esmorteir els moviments giratoris i unir les rodes amb els motors", "Resistir esforços de tracció i de fre i unir les rodes amb la caixa"], "ans": 3, "expl": "El bastidor és una estructura de ferro capaç de resistir els esforços de tracció i de fre, i uneix les rodes amb la caixa del tren.", "loc": "Diap. 96 · El bogi. Parts · Bastidor del bogi"}, {"sec": 1, "text": "Quina frenada s'activa mitjançant el bolet?", "opts": ["La frenada d'urgència", "La frenada d'emergència", "La frenada d'estacionament", "La frenada de servei"], "ans": 1, "expl": "La frenada d'emergència s'activa amb el bolet; la de servei amb el manipulador en 0 i la d'urgència amb el manipulador en FU.", "loc": "Diap. 17 · Tipus de frenades"}, {"sec": 7, "text": "A la numeració d'una UT, el primer dígit indica la línia. Quina línia indica el 2, com a la UT 211?", "opts": ["La línia LA", "La línia LP", "La línia BV", "La sèrie de la unitat"], "ans": 0, "expl": "Primer dígit: 1 = BV, 2 = LA i 3 = LP.", "loc": "Diap. 150 · Significat numeració UT"}, {"sec": 7, "text": "A la pantalla de portes COSMOS de les UT 113/114, quin color indica una porta desblocada?", "opts": ["Groc", "Blau clar", "Verd", "Negre"], "ans": 0, "expl": "Llegenda COSMOS: taronja aïllada, blau clar condemnada, gris manca d'informació, negre tancada, verd oberta i groc desblocada.", "loc": "Diap. 151 · Numeració portes i tiradors d'alarma"}, {"sec": 2, "text": "Quins són els tres tipus de locomotores segons el tipus de servei?", "opts": ["De càrrega, de viatgers i de maniobres", "De càrrega, de viatgers i elèctriques", "De mercaderies, de vapor i de maniobres", "De viatgers, de maniobres i elèctriques"], "ans": 0, "expl": "La classificació segons el servei distingeix locomotores de càrrega, de viatgers i de maniobres; vapor, dièsel i elèctriques és la classificació segons la tracció.", "loc": "Diap. 31 · Locomotores: classificació segons el tipus de servei"}, {"sec": 3, "text": "Quins elements es troben a la sala de màquines d'una locomotora?", "opts": ["Motor dièsel, intercomunicador i teleindicadors", "Pupitre de conducció, generador elèctric i compressor", "Motor dièsel, generador elèctric i compressor d'aire", "Seients, motor dièsel i maneta d'alarma dels viatgers"], "ans": 2, "expl": "La sala de màquines allotja el motor dièsel, el generador elèctric, el compressor d'aire i altres elements auxiliars.", "loc": "Diap. 57 · La caixa de la locomotora"}, {"sec": 3, "text": "Quantes cabines de conducció pot tenir una locomotora?", "opts": ["Una o dues, segons la locomotora", "Sempre una, a l'extrem del bastidor", "Una o tres, segons la locomotora", "Sempre dues, una a cada extrem"], "ans": 0, "expl": "La presentació mostra locomotores d'una cabina i locomotores de dues cabines.", "loc": "Diap. 56 · La caixa de la locomotora"}, {"sec": 5, "text": "On està fixada la corona de gir?", "opts": ["Al bastidor de la caixa i a la biela d'arrossegament", "Al bastidor del bogi i a la caixa de greix", "Al bastidor de la caixa i a la travessa de càrrega", "A la suspensió primària i a la travessa"], "ans": 2, "expl": "La corona de gir està fixada al bastidor de la caixa i a la travessa de càrrega del bogi.", "loc": "Diap. 99 · Elements de connexió entre caixa i bogi · Corona de gir"}, {"sec": 4, "text": "Qui pot enganxar i desenganxar un enganxall semipermanent?", "opts": ["El maquinista, a la capçalera de la UT", "Només els mecànics, al taller", "Qualsevol operari, amb la maneta de descoblament", "L'agent d'estació, a la via de maniobres"], "ans": 1, "expl": "Els semipermanents només poden ser enganxats i desenganxats pels mecànics al taller.", "loc": "Diap. 75 · Els enganxalls. Tipus · Semipermanents"}, {"sec": 6, "text": "Com actua el fre de blocs?", "opts": ["Directament sobre les rodes, per mitjà d'un motor elèctric", "Sobre el carril, per mitjà d'un cilindre pneumàtic", "Sobre un disc de l'eix, per mitjà d'un cilindre pneumàtic de fre", "Directament sobre les rodes, per mitjà d'un cilindre pneumàtic"], "ans": 3, "expl": "El fre de blocs actua directament sobre les rodes per mitjà d'un cilindre pneumàtic.", "loc": "Diap. 138 · Fre de blocs"}, {"sec": 6, "text": "Com transmet el moviment a les rodes el motor de tracció, que normalment va fixat al bastidor del bogi?", "opts": ["Per mitjà de la travessa de càrrega", "Per mitjà dels bolons de la suspensió", "Per mitjà dels elements de transmissió", "Directament, sense cap element intermedi"], "ans": 2, "expl": "El motor va fixat al bastidor del bogi i transmet el moviment a les rodes per mitjà dels elements de transmissió.", "loc": "Diap. 128 · El motor de tracció"}, {"sec": 4, "text": "Què diferencia els enganxalls semiautomàtics dels automàtics?", "opts": ["Que els vehicles s'enganxen amb ganxos manuals", "Que les connexions són independents de l'enganxall", "Que les connexions van integrades dins l'enganxall", "Que només els mecànics els poden manipular al taller"], "ans": 1, "expl": "Són similars als automàtics, però amb les connexions elèctriques o pneumàtiques independents.", "loc": "Diap. 82 · Els enganxalls. Tipus · Semiautomàtics"}, {"sec": 1, "text": "Quins sistemes auxiliars tenen relació directa amb la marxa i el funcionament del tren, tret de tracció, fre i seguretat?", "opts": ["Els sistemes auxiliars de confort", "Els sistemes auxiliars de comunicació", "Els sistemes auxiliars de conducció", "Els sistemes principals de tracció"], "ans": 2, "expl": "Aquesta és la definició dels sistemes auxiliars de conducció.", "loc": "Diap. 19 · Sistemes auxiliars"}, {"sec": 5, "text": "Per què les bieles d'arrossegament es col·loquen el més a prop possible del punt de tracció?", "opts": ["Per evitar l'amorrament de la caixa en el moment de l'arrencada", "Per evitar el balanceig lateral de la caixa en el moment de la frenada", "Per evitar el fregament dels eixos en el moment de l'arrencada", "Per evitar l'esforç del motor sobre la caixa durant la marxa"], "ans": 0, "expl": "Se situen prop del punt de tracció per evitar l'amorrament de la caixa en l'arrencada; garanteixen la transmissió dels esforços de tracció i frenada del bogi a la caixa.", "loc": "Diap. 113 · El bogi. Parts · Bieles d'arrossegament"}, {"sec": 4, "text": "Quin ús tenen els enganxalls semiautomàtics?", "opts": ["Unir només unitats de tren de passatgers", "Unir els cotxes d'una UT de manera permanent", "Unir locomotores entre elles o amb vagons", "Unir els vagons entre ells sense locomotora"], "ans": 2, "expl": "S'utilitzen per unir les locomotores entre elles o amb els vagons.", "loc": "Diap. 82 · Els enganxalls. Tipus · Semiautomàtics"}, {"sec": 6, "text": "De quins elements pot estar formada la suspensió primària d'un bogi?", "opts": ["De cons de goma amb un cilindre pneumàtic a l'interior", "De molles i amortidors, o de cons de goma amb molla interior", "De molles i amortidors, o de coixins pneumàtics de goma", "De coixins pneumàtics amb vàlvula compensadora i amortidors d'aire"], "ans": 1, "expl": "La suspensió primària pot ser de molles i amortidors o de cons de goma amb una molla interior que actua si es trenca la goma.", "loc": "Diap. 120 · Suspensió primària"}, {"sec": 1, "text": "Quin sistema de control de la potència de tracció és propi de les UT 112 i 213?", "opts": ["El sistema electrònic Chopper", "El sistema informàtic Cosmos", "El sistema FLG/ALG", "El sistema manual"], "ans": 2, "expl": "Les UT 112 i 213 utilitzen el sistema informàtic FLG/ALG.", "loc": "Diap. 13 · Sistemes de control de la potència de tracció"}, {"sec": 3, "text": "On es troben els enganxalls d'un tren i quina funció tenen?", "opts": ["Als extrems del bastidor, per unir cotxes i unitats", "Als extrems del bogi, per unir les rodes a l'eix", "Al centre del bastidor, per unir la caixa al bogi", "Sota la caixa, per subjectar els dipòsits d'aire i compressors"], "ans": 0, "expl": "Els enganxalls se situen al començament i al final del bastidor de la caixa i permeten la unió entre cotxes d'una mateixa unitat o entre unitats.", "loc": "Diap. 51 · Els enganxalls"}, {"sec": 5, "text": "Quin paper té la corona de gir en la unió entre la caixa i el bogi?", "opts": ["Esmorteix els moviments verticals excessius entre el bogi i la caixa del tren", "Transmet l'aire comprimit dels frens entre el bogi i la caixa", "Lubrica les pestanyes de les rodes del bogi en les corbes tancades", "Transmet els esforços de tracció i de frenada entre el bogi i la caixa"], "ans": 3, "expl": "La corona de gir assegura la transmissió dels esforços de tracció i de frenada entre el bogi i la caixa.", "loc": "Diap. 99 · Elements de connexió entre caixa i bogi · Corona de gir"}, {"sec": 5, "text": "Quins elements permeten la connexió entre els sistemes de conducció i els elements situats al bogi?", "opts": ["Les molles helicoïdals i els amortidors", "Les barres de torsió i les bieles", "Les canonades flexibles i els cables", "Les canonades rígides i els cables"], "ans": 2, "expl": "Les canonades flexibles i els cables connecten els sistemes de conducció amb els elements del bogi.", "loc": "Diap. 102 · Elements de connexió entre caixa i bogi · Connexions flexibles"}, {"sec": 1, "text": "Quin dels elements següents és un sistema auxiliar de confort?", "opts": ["Els netejavidres", "Els xiulets", "La radiotelefonia", "L'enllumenat"], "ans": 3, "expl": "L'enllumenat figura entre els sistemes auxiliars de confort.", "loc": "Diap. 21 · Sistemes auxiliars de confort"}, {"sec": 2, "text": "Com funciona una locomotora dièsel-elèctrica?", "opts": ["El motor elèctric carrega el motor dièsel amb l'energia de la catenària", "El motor dièsel mou una turbina que fa girar les rodes amb oli", "El motor dièsel transmet la força a les rodes amb una caixa de canvis", "El motor dièsel genera l'electricitat per als motors de tracció"], "ans": 3, "expl": "Utilitza la potència del motor dièsel per generar l'electricitat que fa funcionar els motors elèctrics que fan girar les rodes.", "loc": "Diap. 34 · Locomotora dièsel-elèctrica"}, {"sec": 6, "text": "Per a què serveixen les sorreres?", "opts": ["Per refredar els discos de fre durant les frenades llargues", "Per reduir el fregament de la pestanya amb el carril i el desgast dels eixos", "Per netejar la banda de rodolament de les rodes abans de frenar", "Per augmentar l'adherència roda-carril en frenar o en iniciar la marxa"], "ans": 3, "expl": "Les sorreres llancen sorra sobre els carrils per augmentar l'adherència roda-carril en una frenada o en iniciar la marxa.", "loc": "Diap. 141 · Les sorreres"}, {"sec": 3, "text": "Quins elements té un cotxe motor amb cabina (CM1 o CM2) d'una UT?", "opts": ["Només departament de viatgers, sense cabina ni motors", "Cabina de conducció i departament de viatgers, sense motors", "Departament de viatgers i motors de tracció, sense cabina", "Cabina, departament de viatgers i motors de tracció"], "ans": 3, "expl": "El CM1 i el CM2 sumen cabina de conducció, departament de viatgers i motors de tracció.", "loc": "Diap. 59 · Cotxe motor amb cabina – CM1 i CM2"}, {"sec": 5, "text": "Quins elements del tren ha de permetre acoblar els diferents elements d'unió entre la caixa i el bogi?", "opts": ["Els de suspensió, de tracció i de fre", "Els de climatització, de tracció i de fre", "Els de suspensió, de tracció i d'il·luminació", "Els de suspensió, d'enganxall i de fre"], "ans": 0, "expl": "Els elements d'unió entre caixa i bogi han de permetre acoblar els diversos elements de suspensió, de tracció i de fre del tren.", "loc": "Diap. 97 · El bogi. Parts · Bastidor del bogi"}, {"sec": 2, "text": "Quina locomotora substituirà en el futur la 254 i serà bimodal (o dual)?", "opts": ["La 251", "La 254", "La 256", "La 257"], "ans": 3, "expl": "La presentació indica que vindrà la locomotora 257 en substitució de la 254, i que serà bimodal.", "loc": "Diap. 27 · Locomotores del tipus dièsel-elèctrica"}, {"sec": 7, "text": "A la numeració dels estiradors d'alarma d'un cotxe, de quin costat és l'estirador número 2?", "opts": ["Del costat ascendent", "Del costat descendent", "De l'extrem de la direcció PC", "De l'extrem de la direcció TB"], "ans": 1, "expl": "La llegenda dels estiradors assigna l'1 al costat ascendent i el 2 al costat descendent.", "loc": "Diap. 151 · Numeració portes i tiradors d'alarma"}, {"sec": 3, "text": "A les UT, què designa l'abreviatura CMi?", "opts": ["Cotxe motor intermedi", "Cotxe motor amb cabina", "Cotxe remolc amb cabina", "Cotxe remolc intermedi"], "ans": 0, "expl": "CMi és el cotxe motor intermedi: departament de viatgers i motors de tracció, sense cabina.", "loc": "Diap. 60 · Cotxe motor intermedi i cotxe remolc"}, {"sec": 1, "text": "Quin sistema d'informació als viatgers equipa la UT 113?", "opts": ["La radiotelefonia", "HERMES", "MICAS", "COSMOS"], "ans": 1, "expl": "La UT 113 porta el sistema HERMES, segons la diapositiva 22.", "loc": "Diap. 22 · Sistemes auxiliars de comunicació"}, {"sec": 4, "text": "En alguns enganxalls automàtics les connexions pneumàtiques i elèctriques no estan integrades a l'enganxall. Què cal fer en aquest cas?", "opts": ["Substituir-les per una connexió mecànica", "Deixar-les desconnectades durant la marxa", "Connectar-les després de l'acoblament", "Connectar-les abans que els vehicles topin"], "ans": 2, "expl": "Quan les connexions són al costat de l'enganxall, s'han de connectar un cop s'ha produït l'acoblament.", "loc": "Diap. 76 · Els enganxalls. Tipus · Automàtics"}, {"sec": 4, "text": "Per què l'enganxall Scharfenburg no s'utilitza en trens de mercaderies?", "opts": ["Perquè només arrossega fins a 1.000 kg", "Perquè no disposa de connexió pneumàtica", "Perquè només arrossega fins a 10.000 kg", "Perquè només es pot desenganxar al taller"], "ans": 2, "expl": "El Scharfenburg no es fa servir en mercaderies perquè només pot arrossegar fins a 10.000 kg.", "loc": "Diap. 80 · Els enganxalls. Tipus · Enganxall Scharfenburg"}, {"sec": 1, "text": "Quins són els tres sistemes principals de les UT i de les locomotores?", "opts": ["Tracció, fre i seguretat", "Fre, confort i comunicació", "Tracció, fre i confort", "Tracció, comunicació i seguretat"], "ans": 0, "expl": "Els sistemes principals són el de tracció, el de fre i els de seguretat.", "loc": "Diap. 11 · Sistemes principals d'UTs i locomotores"}, {"sec": 5, "text": "Quina és la funció del dispositiu antibalanceig?", "opts": ["Esmorteir els moviments verticals i transversals excessius de la caixa del tren", "Transmetre els esforços de tracció i de frenada cap a la caixa", "Esmorteir els moviments giratoris i de balanceig excessius de la caixa", "Evitar l'amorrament de la caixa en el moment de l'arrencada"], "ans": 2, "expl": "L'antibalanceig esmorteix els moviments giratoris i de balanceig excessius de la caixa, tornant-la al seu lloc de manera progressiva i suau.", "loc": "Diap. 112 · El bogi. Parts · Dispositiu antibalanceig"}, {"sec": 1, "text": "Quins són els tipus de fre que inclou el sistema de fre d'una unitat de tren?", "opts": ["Fre elèctric, de disc, de tambor, de mà i d'estacionament", "Fre elèctric, de disc, de blocs, de mà i de cremallera", "Fre elèctric, de disc, de blocs, de mà i d'estacionament", "Fre elèctric, de disc, de blocs, de mà i hidràulic"], "ans": 2, "expl": "La presentació enumera cinc frens: elèctric, de disc, de blocs, de mà i d'estacionament.", "loc": "Diap. 15 · Frens"}, {"sec": 1, "text": "Quines UT porten el sistema Cosmos com a bus de control de tracció?", "opts": ["Les UT 113 i 114", "Les UT 111, 112 i 114", "Les UT 112, 213 i 111", "Les UT 111 i 112"], "ans": 0, "expl": "El sistema Cosmos (bus de control de tracció) equipa les UT 113 i 114.", "loc": "Diap. 13 · Sistemes de control de la potència de tracció"}, {"sec": 2, "text": "En una locomotora dièsel-hidràulica, quin element transmet la força del motor a les rodes?", "opts": ["Un convertidor de parell amb dues turbines", "Una caixa de canvis amb marxes manuals", "Un convertidor de parell amb dos pistons encarats", "Un generador elèctric amb dues turbines"], "ans": 0, "expl": "La transmissió es fa per un convertidor de parell, un recipient amb dues turbines encarades que no estan en contacte.", "loc": "Diap. 36 · Locomotora dièsel-hidràulica"}, {"sec": 2, "text": "Quin tipus de vagó s'utilitza per al transport d'automòbils?", "opts": ["El vagó per a fusta", "El vagó tolva per a minerals", "El vagó per a automòbils", "El vagó de pis baix"], "ans": 2, "expl": "Entre els tipus de vagons de la diapositiva hi ha el vagó per a automòbils, de dos pisos amb cotxes.", "loc": "Diap. 37 · Tipus de vagons 1"}, {"sec": 6, "text": "Quins dos tipus d'eixos de rodolament hi ha?", "opts": ["Eixos portants i eixos de suspensió", "Eixos de tracció i eixos d'estacionament", "Eixos motrius (motors) i eixos de frenada", "Eixos motrius (motors) i eixos portants"], "ans": 3, "expl": "La presentació distingeix entre eixos motrius o motors i eixos portants.", "loc": "Diap. 130 · Tipus d'eixos"}, {"sec": 2, "text": "Quina unitat de tren circula a la línia Lleida–la Pobla?", "opts": ["La 113", "La 115", "La 331", "La 213"], "ans": 2, "expl": "La diapositiva associa les unitats 331 amb la línia Lleida–la Pobla.", "loc": "Diap. 44 · Unitats 331 – Línia Lleida – La Pobla"}, {"sec": 5, "text": "En quin tipus de material mòbil s'utilitza la corona de gir com a element d'unió entre el bastidor de la caixa i el bogi?", "opts": ["A les locomotores", "A les locomotores i a les UT més antigues", "A les unitats de tren", "A tots els vagons de mercaderies"], "ans": 2, "expl": "La corona de gir és l'element d'unió entre el bastidor de la caixa i el bogi utilitzat a les unitats de tren; el pivot és el de les locomotores i les UT més antigues.", "loc": "Diap. 99 · Elements de connexió entre caixa i bogi · Corona de gir"}, {"sec": 2, "text": "Quina d'aquestes característiques correspon a les unitats de tren (UT) d'FGC?", "opts": ["Tracció dièsel i conducció totalment manual", "Tracció elèctrica i conducció molt automatitzada", "Tracció elèctrica i sense sistemes de seguretat automàtics", "Tracció bimodal i conducció molt automatitzada en maniobres"], "ans": 1, "expl": "Són de tracció elèctrica, molt automatitzades en conducció i sistemes de seguretat, amb estalvi energètic i més confort.", "loc": "Diap. 40 · Unitats de tren (UT)"}, {"sec": 3, "text": "Quin tipus de cotxe d'una UT té cabina de conducció i departament de viatgers però no motors de tracció?", "opts": ["Cotxe motor intermedi (CMi)", "Cotxe motor amb cabina (CM1)", "Cotxe remolc amb cabina", "Cotxe remolc intermedi (CRi)"], "ans": 2, "expl": "El cotxe remolc amb cabina té cabina i viatgers, però no motors de tracció.", "loc": "Diap. 58 · Caixa de les unitats de tren (UT)"}, {"sec": 1, "text": "Quina funció tenen els sistemes de control de la potència de tracció?", "opts": ["Evitar avaries del sistema de tracció", "Reduir la velocitat del tren fins a aturar-lo", "Variar la velocitat segons el maquinista", "Evitar les errades humanes en la conducció"], "ans": 2, "expl": "Controlen la potència dels motors de tracció i permeten variar la velocitat del tren a voluntat del maquinista.", "loc": "Diap. 12 · Sistema de tracció"}, {"sec": 1, "text": "Amb quina posició del manipulador s'obté la frenada d'urgència?", "opts": ["El manipulador en posició FU", "El polsador del bolet", "La maneta d'alarma dels passatgers", "El manipulador en posició 0"], "ans": 0, "expl": "La frenada d'urgència s'aconsegueix amb el manipulador en FU.", "loc": "Diap. 17 · Tipus de frenades"}, {"sec": 2, "text": "Quina de les locomotores actuals d'FGC és bimodal (o dual)?", "opts": ["La 256", "La 251", "La 257", "La 254"], "ans": 0, "expl": "Segons la presentació, la 251 i la 254 són dièsel i la 256 és bimodal o dual; la 257 encara no ha arribat.", "loc": "Diap. 27 · Locomotores del tipus dièsel-elèctrica"}, {"sec": 6, "text": "Com actua el fre de disc?", "opts": ["Les mordasses pressionen un disc muntat sobre l'eix de rodolament", "Un cilindre pneumàtic pressiona un disc fixat al bastidor del bogi", "Un bloc pressiona directament la banda de rodolament de la roda", "Les mordasses pressionen directament la pestanya de la roda"], "ans": 0, "expl": "El fre de disc pressiona un disc muntat sobre l'eix de rodolament per aturar el tren o reduir-ne la velocitat.", "loc": "Diap. 136-137 · Fre de disc"}, {"sec": 3, "text": "Quins materials poden formar les caixes dels trens?", "opts": ["Acer, alumini i poliuretà", "Alumini, plom i formigó", "Acer, coure i cautxú", "Ferro colat, vidre i fusta"], "ans": 0, "expl": "La presentació cita l'acer, l'alumini i el poliuretà com a materials de les caixes, que aporten rigidesa i aïllament tèrmic i acústic amb el menor pes possible.", "loc": "Diap. 54 · La caixa i el bastidor"}, {"sec": 2, "text": "Quin tipus de vagó es destina al transport de ciment?", "opts": ["La plataforma", "La cementera", "El tràiler", "La gòndola"], "ans": 1, "expl": "La diapositiva mostra la cementera com a vagó específic per al ciment, diferent de la gòndola, el tràiler o la plataforma.", "loc": "Diap. 38 · Tipus de vagons 2"}, {"sec": 6, "text": "Quina de les dues suspensions del bogi és la de confort?", "opts": ["La secundària, entre el bogi i la travessa de càrrega", "La primària, entre el motor de tracció i els eixos", "La primària, entre les rodes i el bastidor del bogi motor", "La secundària, entre les rodes i el carril del tren"], "ans": 0, "expl": "La suspensió secundària és la de confort; la travessa de càrrega es recolza sobre el bogi per mitjà dels coixins pneumàtics.", "loc": "Diap. 122 · Suspensió secundària"}, {"sec": 3, "text": "Què és el bastidor de la caixa d'un tren?", "opts": ["Una estructura metàl·lica sobre el sostre que protegeix la caixa dels cops", "Un recobriment d'alumini sota la caixa que n'aïlla tèrmicament els viatgers", "Una estructura metàl·lica sota la caixa que li dóna rigidesa", "Una estructura plàstica entre bogis que dóna rigidesa a les portes"], "ans": 2, "expl": "El bastidor és l'estructura metàl·lica situada sota la caixa que li dóna rigidesa i serveix per allotjar-hi elements del tren.", "loc": "Diap. 67 · El bastidor de la caixa"}, {"sec": 4, "text": "Quin element del tren conté els eixos i les rodes i els manté units a la caixa?", "opts": ["L'enganxall", "El bastidor", "El tensor", "El bogi"], "ans": 3, "expl": "El bogi és l'element que conté els eixos i les rodes i els manté units a la caixa.", "loc": "Diap. 85 · El bogi o carretó"}, {"sec": 6, "text": "Per què hi ha una aixeta d'anul·lació de la suspensió pneumàtica?", "opts": ["Per bloquejar la suspensió i aconseguir que el tren freni amb més força", "Per augmentar la pressió dels coixins quan el tren va ple de viatgers", "Per igualar la pressió entre els coixins de cada bogi del tren", "Per aïllar la suspensió i evitar que tot el tren es quedi sense aire"], "ans": 3, "expl": "En cas de trencament d'un coixí o d'una canonada de la suspensió, l'aixeta l'aïlla perquè el tren no es quedi sense aire comprimit.", "loc": "Diap. 126 · Claus d'anul·lació de la suspensió"}, {"sec": 3, "text": "Quin tipus d'obertura poden tenir les portes de les plataformes d'accés del departament de viatgers?", "opts": ["Només elèctrica, a un sol costat de la unitat", "Pneumàtica o hidràulica, a ambdós costats", "Només manual, a un sol costat", "Pneumàtica o elèctrica, a ambdós costats"], "ans": 3, "expl": "Les plataformes d'accés tenen portes d'obertura pneumàtica o elèctrica a ambdós costats.", "loc": "Diap. 61 · Departament de viatgers"}, {"sec": 6, "text": "A més de les rodes, què allotgen els eixos dels bogis motors?", "opts": ["Els coixins pneumàtics de la suspensió", "Els dipòsits de sorra de les sorreres", "Els engranatges de la transmissió", "Els cilindres pneumàtics del fre de blocs"], "ans": 2, "expl": "Els eixos allotgen les rodes i, als bogis motors, també els engranatges de la transmissió.", "loc": "Diap. 129 · Els eixos de rodolament"}, {"sec": 5, "text": "En quins vehicles s'utilitza el pivot com a element d'unió entre la caixa i el bogi?", "opts": ["A les unitats de tren més modernes i als cotxes remolc", "A les locomotores i a totes les unitats de tren elèctriques", "Només als cotxes remolc i als vagons de mercaderies", "A les locomotores i a les unitats de tren més antigues"], "ans": 3, "expl": "El pivot és l'element d'unió entre el bastidor de la caixa i el bogi utilitzat a les locomotores i a les UT més antigues.", "loc": "Diap. 100 · Elements de connexió entre caixa i bogi · El pivot"}, {"sec": 3, "text": "Segons la presentació, quina unitat de tren disposa de WC al departament de viatgers?", "opts": ["UT113", "UT331", "UT111", "UT213"], "ans": 3, "expl": "La diapositiva associa el WC del departament de viatgers a la UT213.", "loc": "Diap. 61 · Departament de viatgers"}, {"sec": 7, "text": "En una UT 112 de la línia BV, quin cotxe va a l'extrem del costat de la direcció PC?", "opts": ["El CM2 (motor amb cabina)", "El CM1 (motor amb cabina)", "El CRi (cotxe remolc intermedi)", "El CMi (cotxe motor intermedi)"], "ans": 0, "expl": "El CM1 és a l'extrem de la direcció TB–SR–SB–TR i el CM2 a l'extrem de la direcció PC; entremig hi ha el CMi i el CRi.", "loc": "Diap. 148 · Numeració de cotxes (línia BV)"}, {"sec": 4, "text": "De quins elements estan formats els enganxalls manuals?", "opts": ["De ganxos i tensors manuals", "De tapa i connexions elèctriques", "De maneta i connexió pneumàtica", "De ganxos i tensors automàtics"], "ans": 0, "expl": "Els enganxalls manuals estan formats per ganxos i tensors manuals i es troben en el material més antic.", "loc": "Diap. 83 · Els enganxalls. Tipus · Manuals"}, {"sec": 2, "text": "Quin element caracteritza la transmissió d'una locomotora dièsel-mecànica, com la d'un cotxe o un camió?", "opts": ["Un compressor que acciona el motor dièsel", "Una caixa de canvis de marxes", "Un convertidor de parell amb dues turbines", "Un generador que alimenta motors elèctrics"], "ans": 1, "expl": "La força del motor dièsel es transmet a les rodes per una transmissió mecànica amb canvi de marxes.", "loc": "Diap. 35 · Locomotora dièsel-mecànica"}, {"sec": 1, "text": "On es troben les aixetes d'aïllament d'algun circuit pneumàtic?", "opts": ["Als armaris del compartiment del passatge", "A la cabina de conducció", "Al quadre de comandament de la cabina", "A l'exterior del tren"], "ans": 3, "expl": "Algunes aixetes d'aïllament són a l'exterior del tren, igual que les claus de posada a terra de les UT.", "loc": "Diap. 23 · Conducció i comandament"}, {"sec": 5, "text": "Com és la peça que forma el pivot?", "opts": ["Una peça anular fixada a la caixa i que s'insereix dins del bogi", "Una peça plana fixada a la caixa i que reposa sobre el bogi", "Una peça cònica fixada a la caixa i que reposa sobre el bogi", "Una peça cònica fixada al bogi i que reposa sobre la caixa"], "ans": 2, "expl": "El pivot està format per una peça de forma cònica fixada a la caixa i que reposa sobre el bogi.", "loc": "Diap. 100 · Elements de connexió entre caixa i bogi · El pivot"}, {"sec": 6, "text": "Quins són els tres sistemes de fre del bogi?", "opts": ["Fre de disc, fre de blocs i fre de servei", "Fre de disc, fre de blocs i fre d'estacionament", "Fre de blocs, fre d'emergència i fre elèctric de via", "Fre de disc, fre de zapata i fre de via"], "ans": 1, "expl": "El bogi pot tenir fre de disc, fre de blocs i fre d'estacionament.", "loc": "Diap. 135 · Sistemes de fre"}, {"sec": 6, "text": "Quan s'acciona el fre d'estacionament?", "opts": ["Quan la pressió d'aire dels coixins és massa alta", "Quan el tren supera la velocitat màxima de la línia", "Quan es trenca un dels coixins de la suspensió pneumàtica", "Quan falta l'aire comprimit dels frens de disc i de blocs"], "ans": 3, "expl": "El fre d'estacionament s'acciona en cas de manca d'aire comprimit, necessari per al funcionament dels frens de disc i de blocs.", "loc": "Diap. 139 · Fre d'estacionament"}, {"sec": 3, "text": "En quins dos espais clarament diferenciats es divideix la caixa d'una locomotora?", "opts": ["Cabina de conducció i departament de viatgers", "Sala de màquines i departament de viatgers", "Cabina de conducció i plataforma d'accés", "Cabina de conducció i sala de màquines"], "ans": 3, "expl": "Les caixes de les locomotores es divideixen en cabina de conducció i sala de màquines.", "loc": "Diap. 55 · Caixa de la locomotora"}, {"sec": 5, "text": "Quin dels elements següents se situa al bogi i es connecta amb els sistemes de conducció mitjançant canonades flexibles i cables?", "opts": ["El disjuntor extrarràpid principal", "El pantògraf de la unitat", "El greixador de pestanya", "L'enganxall automàtic frontal"], "ans": 2, "expl": "Els elements situats al bogi són els frens, la suspensió pneumàtica, els greixadors de pestanya, les sorreres i altres elements.", "loc": "Diap. 102 · Elements de connexió entre caixa i bogi · Connexions flexibles"}, {"sec": 1, "text": "Quin sistema de control de la potència de frenada s'utilitza a les locomotores?", "opts": ["El sistema Cosmos", "El sistema FLG/ALG", "Un sistema manual", "El sistema Chopper"], "ans": 2, "expl": "En el cas de les locomotores, el control de la potència de frenada és manual.", "loc": "Diap. 16 · Sistemes de control de la potència de frenada"}, {"sec": 2, "text": "Què utilitzen per a la tracció les locomotores del tipus dièsel-elèctrica?", "opts": ["Motors dièsel i convertidors de parell hidràulics", "Només motors elèctrics alimentats per catenària", "Només motors dièsel amb caixa de canvis", "Motors dièsel i motors elèctrics"], "ans": 3, "expl": "Les locomotores dièsel-elèctriques utilitzen motors dièsel i elèctrics per a la tracció.", "loc": "Diap. 27 · Locomotores del tipus dièsel-elèctrica"}, {"sec": 6, "text": "Com s'anomenen els dos coixins pneumàtics sobre els quals es recolza la travessa de càrrega?", "opts": ["Captadors", "Bolons", "Sorreres", "Mordasses"], "ans": 1, "expl": "La travessa de càrrega es recolza directament sobre el bogi per mitjà de dos coixins pneumàtics anomenats bolons.", "loc": "Diap. 122 · Suspensió secundària"}, {"sec": 6, "text": "Quin element pot substituir els bolons a la suspensió secundària i actua si falla el sistema pneumàtic?", "opts": ["Cons de goma amb molles que actuen en cas d'avaria", "Cons de goma amb un dipòsit auxiliar d'aire comprimit", "Blocs de goma amb vàlvules compensadores addicionals", "Molles helicoïdals amb amortidors hidràulics a l'exterior"], "ans": 0, "expl": "En lloc de bolons també pot haver-hi cons de goma amb molles que actuen en cas d'avaria pneumàtica o de trencament d'un boló.", "loc": "Diap. 122 · Suspensió secundària"}, {"sec": 2, "text": "En el convertidor de parell d'una locomotora dièsel-hidràulica, què fa que el moviment passi d'una turbina a l'altra?", "opts": ["L'acoblament mecànic amb la caixa de canvis", "El contacte directe entre les dues turbines", "La introducció d'aire comprimit al recipient", "La introducció d'oli en el recipient"], "ans": 3, "expl": "Les turbines no es toquen; en introduir oli al recipient, el moviment de la turbina A (motor dièsel) passa a la B (rodes).", "loc": "Diap. 36 · Locomotora dièsel-hidràulica"}, {"sec": 7, "text": "Quin tipus de cotxe indica el 8 com a segon dígit de la numeració d'una UT?", "opts": ["Cotxe remolc sense cabina", "Cotxe motor sense cabina", "Automotor dièsel amb cabina", "Cotxe motor amb cabina"], "ans": 0, "expl": "Segon dígit: 1 = motor amb cabina, 2 = motor sense cabina, 3 = automotor dièsel i 8 = remolc sense cabina.", "loc": "Diap. 150 · Significat numeració UT"}, {"sec": 2, "text": "Quins són els tres tipus de locomotores dièsel segons la seva transmissió?", "opts": ["Dièsel-mecàniques, dièsel-elèctriques i dièsel-hidràuliques", "Dièsel-hidràuliques, dièsel-elèctriques i dièsel-nuclears", "Dièsel-mecàniques, dièsel-bimodals i dièsel-hidràuliques", "Dièsel-mecàniques, dièsel-elèctriques i dièsel-pneumàtiques"], "ans": 0, "expl": "La presentació classifica les locomotores dièsel en mecàniques, elèctriques i hidràuliques.", "loc": "Diap. 32 · Locomotores: classificació segons el tipus de tracció"}, {"sec": 2, "text": "Què s'aconsegueix quan s'acoblen entre elles diverses locomotores?", "opts": ["Menys potència de tracció i més capacitat de frenada", "Més velocitat màxima i menys consum de combustible", "Més potència de tracció però menys capacitat de càrrega", "Més potència de tracció i més capacitat de càrrega"], "ans": 3, "expl": "En acoblar-se, les locomotores aconsegueixen una major potència de tracció, cosa que dona una major capacitat de càrrega.", "loc": "Diap. 30 · Locomotores"}, {"sec": 1, "text": "Quin dels elements següents és un sistema auxiliar de conducció?", "opts": ["La megafonia interior", "La climatització", "Les sorreres", "Els para-sols"], "ans": 2, "expl": "Les sorreres figuren entre els sistemes auxiliars de conducció; la climatització i els para-sols són de confort i la megafonia és de comunicació.", "loc": "Diap. 20 · Sistemes auxiliars de conducció"}], "dev": [{"title": "Sistemes principals de les UT i locomotores", "text": "Explica quins són els sistemes principals de les UT i de les locomotores, i descriu la composició del sistema de tracció i del sistema de fre.", "ref": "Diap. 11–17", "pts": ["Els sistemes principals són tres: tracció, fre i seguretat; la seguretat garanteix el bon funcionament dels altres sistemes i evita errades humanes", "La tracció permet el desplaçament del tren i es forma amb motors de tracció elèctrica, sistemes de control de la potència de tracció i seguretat interna (que evita avaries)", "El control de la potència de tracció es fa amb resistències de fre, Chopper (UT 111), FLG/ALG (UT 112 i 213) i Cosmos (UT 113 i 114)", "El sistema de fre permet reduir la velocitat del tren fins a aturar-lo i es forma amb els frens i el control de la potència de frenada", "Els frens són: elèctric, de disc, de blocs, de mà i d'estacionament", "El control de la potència de frenada es fa amb codificadors i descodificadors de la demanda de frenada, FLG/ALG (UT 112 i 213), Cosmos (UT 113 i 114) i, a les locomotores, un sistema manual", "Tipus de frenada: de servei (manipulador en 0), d'urgència (manipulador en FU), d'emergència (bolet) i d'estacionament"]}, {"title": "Tipus de locomotores dièsel", "text": "Compara els tres tipus de locomotores dièsel segons la seva transmissió i explica com funciona cadascun.", "ref": "Diap. 32–36", "pts": ["Les locomotores dièsel es divideixen en dièsel-mecàniques, dièsel-elèctriques i dièsel-hidràuliques", "Dièsel-elèctrica: el motor dièsel produeix l'electricitat que alimenta els motors elèctrics de tracció que fan girar les rodes", "Dièsel-mecànica: la força del motor passa a les rodes per una transmissió mecànica, com en un cotxe o camió", "La dièsel-mecànica té canvi de marxes i caixa de canvis", "Dièsel-hidràulica: la transmissió es fa per un convertidor de parell, un recipient amb dues turbines encarades sense contacte", "Quan s'introdueix oli, el moviment de la turbina A (motor dièsel) es transmet a la B (rodes)"]}, {"title": "Unitats de tren d'FGC", "text": "Descriu les unitats de tren (UT) d'FGC: característiques generals, models i línies on circulen, i les normes d'acoblament.", "ref": "Diap. 40–46", "pts": ["Són de tracció elèctrica, molt automatitzades en conducció i sistemes de seguretat, i proporcionen més estalvi energètic i confort als viatgers", "Les unitats 112, 113, 114 i 115 circulen a la línia BV", "La unitat 213 circula a la línia LA", "La unitat 331 circula a la línia Lleida–la Pobla", "Són per al transport de viatgers, amb dos cotxes o més, i funcionen com una sola unitat", "Els enganxalls entre els cotxes d'una unitat només poden ser manipulats pels mecànics", "En cas d'avaria, les unitats es poden acoblar entre elles per remolcar-ne alguna", "En servei comercial s'acoblen en composició múltiple a la LA i, quan arribi la 3a UT, també a Lleida–la Pobla"]}, {"title": "Compara els quatre tipus de cotxe d'una UT", "text": "Explica quins tipus de cotxe formen les unitats de tren (UT) i compara'ls segons si tenen cabina de conducció, motors de tracció i departament de viatgers.", "ref": "Diap. 58–60 · Caixa de les UT", "pts": ["Hi ha quatre tipus de cotxe: motor amb cabina, motor intermedi, remolc amb cabina i remolc intermedi", "El cotxe motor amb cabina (CM1 i CM2) té cabina de conducció, departament de viatgers i motors de tracció", "El cotxe motor intermedi (CMi) té motors de tracció i departament de viatgers, però no cabina", "El cotxe remolc amb cabina té cabina i departament de viatgers, però no motors de tracció", "El cotxe remolc intermedi (CRi) només disposa de departament de viatgers", "Els motors de tracció distingeixen els cotxes motor dels remolcs; la cabina distingeix els cotxes d'extrem dels intermedis"]}, {"title": "Els enganxalls", "text": "Explica què són els enganxalls, on se situen i quins tipus hi ha, descrivint breument cadascun.", "ref": "Diap. 74–83", "pts": ["Permeten la unió entre cotxes, vagons, locomotores o unitats de tren", "Se situen a cada extrem del bastidor de la caixa", "Semipermanents: cotxes de les UT que circulen sempre units; només els mecànics al taller els enganxen i desenganxen", "Automàtics: no cal operari, s'enganxen sols quan els vehicles topen", "Els automàtics poden tenir connexions pneumàtiques i elèctriques integrades o al costat, i cal connectar-les després de l'acoblament", "Un exemple d'automàtic és el Scharfenburg, amb connexions mecànica, pneumàtica i elèctrica; no s'usa en mercaderies perquè només arrossega fins a 10.000 kg", "Semiautomàtics: similars als automàtics però amb connexions independents; uneixen locomotores entre elles o amb vagons", "Manuals: ganxos i tensors manuals, propis del material ferroviari més antic"]}, {"title": "El bogi", "text": "Descriu què és un bogi i compara els bogis motrius i portadors i els tipus segons el nombre d'eixos.", "ref": "Diap. 85–91", "pts": ["El bogi és l'element del tren que conté els eixos i les rodes", "Permet mantenir unides les rodes i els eixos a la caixa", "És una estructura rígida que permet el moviment del tren unint caixa i rodes", "Bogi motriu: amb motor; portador: sense motors", "Amb un sol eix no es considera bogi sinó eix simple (vagons de mercaderies, locomotores de maniobres)", "Segons el nombre d'eixos, la presentació mostra bogis de 2, 3 i 4 eixos"]}, {"title": "Les parts del bogi i la unió amb la caixa", "text": "Descriu els elements que uneixen la caixa i el bogi i explica la funció de la travessa de càrrega, de les bieles d'arrossegament i de les caixes de greix.", "ref": "Diap. 96–105 i 113–115", "pts": ["El bastidor del bogi és una estructura de ferro que resisteix els esforços de tracció i de fre i uneix les rodes amb la caixa", "La corona de gir uneix el bastidor de la caixa i el bogi a les unitats de tren i transmet els esforços de tracció i de frenada", "El pivot, de forma cònica, fixat a la caixa i reposant sobre el bogi, s'usa a les locomotores i a les UT més antigues", "Les canonades flexibles i els cables connecten els sistemes de conducció amb els frens, la suspensió pneumàtica, els greixadors de pestanya i les sorreres del bogi", "La travessa de càrrega, on s'insereix la corona de gir, actua com una biga oscil·lant i els seus extrems es recolzen sobre la suspensió secundària", "Sobre la travessa actuen la suspensió pneumàtica secundària, els amortidors verticals i transversals, l'antibalanceig i l'esforç del motor de tracció", "Les dues bieles d'arrossegament, longitudinals i entre el bastidor i la travessa, transmeten els esforços de tracció i de frenada del bogi a la caixa; se situen com més a prop millor del punt de tracció per evitar l'amorrament de la caixa a l'arrencada", "Les caixes de greix, als extrems dels eixos de rodolament, els uneixen al bastidor mitjançant les molles de suspensió i tenen coixinets que redueixen el fregament"]}, {"title": "Suspensió del bogi", "text": "Explica els dos sistemes de suspensió d'un bogi: la funció de cadascun, de quins elements poden estar formats i què passa si falla un coixí pneumàtic.", "ref": "Diap. 119-126", "pts": ["Locomotores i unitats de tren tenen dues suspensions: primària i secundària", "La primària és la de seguretat: assegura la connexió roda-carril i absorbeix els desperfectes del carril", "La primària pot ser de molles i amortidors, o de cons de goma amb una molla interior que actua si es trenca la goma", "La secundària és la de confort", "La travessa de càrrega es recolza sobre el bogi per mitjà de dos coixins pneumàtics (bolons) o, en lloc seu, de cons de goma amb molles que actuen en cas d'avaria del sistema pneumàtic", "La vàlvula compensadora, entre els dos coixins, impedeix diferències de pressió entre ells", "Si es trenca un coixí, el coixí contrari comunica amb l'atmosfera per no inclinar excessivament la caixa", "En cas de trencament d'un coixí o d'una canonada, una aixeta aïlla la suspensió perquè tot el tren no es quedi sense aire comprimit; l'accionament el fa el/la maquinista"]}, {"title": "Frens i elements auxiliars del bogi", "text": "Descriu els tres sistemes de fre del bogi i els elements auxiliars que ajuden a mantenir l'adherència i a reduir el desgast de la roda.", "ref": "Diap. 135-143", "pts": ["Tres sistemes de fre: de disc, de blocs i d'estacionament", "El fre de disc pressiona amb mordasses un disc muntat sobre l'eix de rodolament", "El fre de blocs actua directament sobre les rodes per mitjà d'un cilindre pneumàtic", "El fre d'estacionament pot actuar sobre el disc o sobre el bloc, segons el model de tren", "S'acciona per manca d'aire comprimit (necessari per als frens de disc i de blocs); alguns frens de disc l'incorporen amb molles", "Les sorreres llancen sorra amb ejectors pneumàtics per augmentar l'adherència roda-carril en frenar o arrencar", "Se situen davant de les rodes extremes dels cotxes motors a les UT, i als extrems dels bogis a les locomotores, en ambdós sentits de la marxa", "Els greixadors de pestanya envien greix a les rodes per reduir el fregament i el desgast de rodes i carrils"]}, {"title": "Numeració de les UT i dels seus cotxes", "text": "Explica com es numeren les unitats de tren (UT) i els seus cotxes, amb exemples de les línies BV i LA.", "ref": "Diap. 147-150, 154", "pts": ["Numeració de la UT en tres dígits: línia, tipus de cotxe i sèrie", "Primer dígit, línia: 1 = BV, 2 = LA i 3 = LP", "Segon dígit, tipus de cotxe: 1 motor amb cabina, 2 motor sense cabina, 3 automotor dièsel i 8 remolc sense cabina", "UT 112: M1 112.XX, Mi 122.XX, Ri 182.XX i M2 112.XX+50 (UT 113: 113.XX, 123.XX, 183.XX i 113.XX+50)", "UT 114: només tres cotxes, 114.XX, 124.XX i 114.XX+50, sense Ri", "Línia BV: el CM1 és a l'extrem de la direcció TB–SR–SB–TR i el CM2 a l'extrem de la direcció PC", "UT 213 (LA): MC1 213-05 (costat ML–MB–IG), Ri 283-05 i MC2 213-55 (costat PE)", "Cada cotxe té dos bogis (1 i 2) i els eixos es numeren de l'1 al 4 (1-2 al bogi 1 i 3-4 al bogi 2)"]}], "sec": {"1": "Bloc 1 · Sistemes principals", "2": "Bloc 2 · Locomotores i unitats de tren", "3": "Bloc 3 · Caixa i bastidor", "4": "Bloc 4 · Enganxalls i tipus de bogi", "5": "Bloc 5 · Parts del bogi", "6": "Bloc 6 · Suspensió, frens i accessoris del bogi", "7": "Bloc 7 · Numeració"}};
+  var Q = D.q, DEV = D.dev, SEC = D.sec, PASS = 7, PEN = 0.25, LET = ["A", "B", "C", "D"];
+  var $ = function (id) { return document.getElementById(id); };
+  function el(tag, cls, txt) { var e = document.createElement(tag); if (cls) e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+  function fmt(n, d) { d = d === undefined ? 2 : d; return n.toLocaleString("ca-ES", { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  var S = { mode: "exam", order: [], ans: {}, i: 0, confirm: false, done: false, filter: "fail" };
+
+  function show(name) {
+    ["home", "quiz", "result", "dev"].forEach(function (v) { $("v-" + v).hidden = v !== name; });
+    var isDev = name === "dev";
+    $("tab-test").setAttribute("aria-selected", String(!isDev));
+    $("tab-dev").setAttribute("aria-selected", String(isDev));
+    window.scrollTo(0, 0);
+  }
+  function home() {
+    $("btn-resume").hidden = !(S.order.length && !S.done);
+    show("home");
+  }
+
+  /* ---------- Inici ---------- */
+  var sel = $("sel-bloc");
+  var o0 = el("option", "", "Tots els blocs (" + Q.length + " preguntes)"); o0.value = "0"; sel.append(o0);
+  Object.keys(SEC).forEach(function (k) {
+    var n = Q.filter(function (q) { return q.sec === +k; }).length;
+    var o = el("option", "", SEC[k] + " (" + n + ")"); o.value = k; sel.append(o);
+  });
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+  function start(ids, mode, doShuffle) {
+    S.mode = mode; S.order = doShuffle ? shuffle(ids.slice()) : ids.slice(); S.ans = {}; S.i = 0; S.confirm = false; S.done = false;
+    show("quiz"); renderQ();
+  }
+  $("btn-start").onclick = function () {
+    var mode = document.querySelector("input[name=mode]:checked").value;
+    var b = +sel.value;
+    var ids = []; Q.forEach(function (q, i) { if (!b || q.sec === b) ids.push(i); });
+    var nq = +$("sel-n").value; if (nq && nq < ids.length) ids = shuffle(ids.slice()).slice(0, nq);
+    start(ids, mode, $("chk-shuffle").checked);
+  };
+  $("btn-resume").onclick = function () { show("quiz"); renderQ(); };
+
+  /* ---------- Test ---------- */
+  function whereBox(q) {
+    var d = el("div", "where");
+    var b = el("b", "", "On trobar-ho: ");
+    d.append(b, document.createTextNode(q.loc + "."));
+    return d;
+  }
+  function renderQ() {
+    var id = S.order[S.i], q = Q[id], total = S.order.length, given = S.ans[id];
+    $("q-count").textContent = "Pregunta " + (S.i + 1) + " de " + total;
+    $("q-sec").textContent = SEC[q.sec].split(" · ")[0];
+    $("q-bar").style.width = (Object.keys(S.ans).length / total * 100) + "%";
+    $("q-text").textContent = q.text;
+    var locked = S.mode === "study" && given !== undefined;
+    var box = $("q-opts"); box.replaceChildren();
+    q.opts.forEach(function (o, k) {
+      var b = el("button", "opt"); b.type = "button"; b.dataset.k = k;
+      b.append(el("span", "opt-l", LET[k]), el("span", "opt-t", o));
+      if (given === k) b.classList.add("sel");
+      if (locked) { if (k === q.ans) b.classList.add("ok"); else if (given === k) b.classList.add("bad"); b.disabled = true; }
+      box.append(b);
+    });
+    var fb = $("q-fb"); fb.replaceChildren(); fb.hidden = !locked;
+    if (locked) {
+      var good = given === q.ans;
+      fb.className = "fb " + (good ? "good" : "wrong");
+      fb.append(el("b", "", good ? "Correcte" : "Incorrecte. La resposta correcta és la " + LET[q.ans] + "."));
+      fb.append(el("p", "", q.expl));
+      fb.append(whereBox(q));
+    }
+    var grid = $("navgrid"); grid.replaceChildren();
+    S.order.forEach(function (qid, idx) {
+      var b = el("button", "nav-n", String(idx + 1)); b.type = "button"; b.dataset.i = idx;
+      b.setAttribute("aria-label", "Anar a la pregunta " + (idx + 1));
+      var a = S.ans[qid];
+      if (a !== undefined) {
+        if (S.mode === "study") b.classList.add(a === Q[qid].ans ? "ok" : "bad"); else b.classList.add("done");
+      }
+      if (idx === S.i) b.classList.add("cur");
+      grid.append(b);
+    });
+    $("btn-prev").disabled = S.i === 0;
+    $("btn-next").disabled = S.i === total - 1;
+    var un = total - Object.keys(S.ans).length;
+    $("confirm").hidden = !S.confirm;
+    if (S.confirm) $("confirm-t").textContent = "Tens " + un + (un === 1 ? " pregunta sense contestar" : " preguntes sense contestar") + ". Les que quedin en blanc valen 0 punts.";
+  }
+  $("q-opts").addEventListener("click", function (e) {
+    var b = e.target.closest(".opt"); if (!b || b.disabled) return;
+    var id = S.order[S.i], k = +b.dataset.k;
+    if (S.mode === "exam" && S.ans[id] === k) delete S.ans[id]; else S.ans[id] = k;
+    S.confirm = false; renderQ();
+  });
+  $("navgrid").addEventListener("click", function (e) {
+    var b = e.target.closest(".nav-n"); if (!b) return; S.i = +b.dataset.i; S.confirm = false; renderQ(); window.scrollTo(0, 0);
+  });
+  $("btn-prev").onclick = function () { if (S.i > 0) { S.i--; S.confirm = false; renderQ(); window.scrollTo(0, 0); } };
+  $("btn-next").onclick = function () { if (S.i < S.order.length - 1) { S.i++; S.confirm = false; renderQ(); window.scrollTo(0, 0); } };
+  $("btn-home").onclick = home;
+  $("btn-back").onclick = function () { S.confirm = false; renderQ(); };
+  $("btn-finish").onclick = function () {
+    var un = S.order.length - Object.keys(S.ans).length;
+    if (un > 0 && !S.confirm) { S.confirm = true; renderQ(); $("confirm").scrollIntoView({ block: "center" }); return; }
+    finish();
+  };
+  $("btn-confirm").onclick = finish;
+
+  /* ---------- Resultat ---------- */
+  function compute() {
+    var r = { ok: 0, bad: 0, blank: 0, per: {}, N: S.order.length };
+    S.order.forEach(function (id) {
+      var q = Q[id], a = S.ans[id], p = r.per[q.sec] || (r.per[q.sec] = { ok: 0, n: 0 });
+      p.n++;
+      if (a === undefined) r.blank++; else if (a === q.ans) { r.ok++; p.ok++; } else r.bad++;
+    });
+    r.net = Math.max(0, r.ok - PEN * r.bad);
+    r.grade = r.net / r.N * 10;
+    r.pct = r.ok / r.N * 100;
+    r.need = PASS / 10 * r.N;
+    return r;
+  }
+  function finish() {
+    S.done = true; S.confirm = false; S.filter = "fail";
+    var r = compute();
+    var card = $("res-card"); card.replaceChildren();
+    var pass = r.grade >= PASS;
+    var g = el("div", "grade", fmt(r.grade)); g.append(el("small", "", " / 10"));
+    card.append(el("div", "label", S.mode === "exam" ? "Resultat de l'examen" : "Resultat del mode estudi"), g);
+    var pill = el("span", "pill " + (pass ? "pass" : "fail"), pass ? "Apte · mínim 7" : "No apte · cal un 7");
+    var pr = el("div", "row"); pr.append(pill);
+    card.append(pr);
+    var msg = pass
+      ? "Has superat el 7 amb " + fmt(r.net) + " punts nets de " + r.N + "."
+      : "Tens " + fmt(r.net) + " punts nets de " + r.N + ". Per arribar al 7 en calen " + fmt(r.need, 1) + ". Repassa els errors de sota i torna-ho a provar.";
+    card.append(el("p", "note", msg));
+    var st = el("div", "stats");
+    [["Encerts", String(r.ok)], ["Errors", String(r.bad)], ["En blanc", String(r.blank)], ["% d'encert", fmt(r.pct, 0) + " %"], ["Punts nets", fmt(r.net)]].forEach(function (x) {
+      var s = el("div", "stat"); s.append(el("span", "label", x[0]), el("b", "", x[1])); st.append(s);
+    });
+    card.append(st);
+    card.append(el("p", "note", "Nota = (encerts − 0,25 × errors) ÷ " + r.N + " × 10"));
+    var bars = $("res-bars"); bars.replaceChildren();
+    Object.keys(r.per).sort().forEach(function (k) {
+      var p = r.per[k], pc = p.ok / p.n * 100;
+      var w = el("div"), h = el("div", "bar-h");
+      h.append(el("span", "", SEC[k].split(" · ")[1] || SEC[k]), el("b", "", p.ok + " / " + p.n));
+      var b = el("div", "bar " + (pc < 50 ? "low" : pc < 75 ? "mid" : "")); var i = el("i"); i.style.width = pc + "%"; b.append(i);
+      w.append(h, b); bars.append(w);
+    });
+    $("btn-retry").hidden = (r.bad + r.blank) === 0;
+    renderReview();
+    show("result");
+  }
+  function renderReview() {
+    var list = $("res-list"); list.replaceChildren();
+    document.querySelectorAll("#res-filter .chip").forEach(function (c) { c.setAttribute("aria-pressed", String(c.dataset.f === S.filter)); });
+    var shown = 0;
+    S.order.forEach(function (id, idx) {
+      var q = Q[id], a = S.ans[id];
+      var st = a === undefined ? "blank" : a === q.ans ? "ok" : "bad";
+      if (S.filter === "fail" && st === "ok") return;
+      if (S.filter === "ok" && st !== "ok") return;
+      shown++;
+      var it = el("article", "rev-item" + (st === "ok" ? " okk" : st === "blank" ? " blk" : ""));
+      var tag = el("div", "tag", (idx + 1) + ". " + (st === "ok" ? "Correcta" : st === "blank" ? "Sense resposta" : "Error"));
+      tag.style.color = st === "ok" ? "var(--ok)" : st === "blank" ? "var(--warn)" : "var(--bad)";
+      it.append(tag, el("div", "qt", q.text));
+      if (st === "bad") { var y = el("div", "ans"); y.append(el("span", "no", "La teva resposta: "), document.createTextNode(LET[a] + ") " + q.opts[a])); it.append(y); }
+      var c = el("div", "ans"); c.append(el("span", "yes", "Resposta correcta: "), document.createTextNode(LET[q.ans] + ") " + q.opts[q.ans])); it.append(c);
+      it.append(el("p", "ans", q.expl), whereBox(q));
+      list.append(it);
+    });
+    if (!shown) list.append(el("div", "card", S.filter === "fail" ? "No tens cap error ni cap pregunta en blanc. Molt bé." : "No hi ha preguntes en aquest filtre."));
+  }
+  $("res-filter").addEventListener("click", function (e) { var c = e.target.closest(".chip"); if (!c) return; S.filter = c.dataset.f; renderReview(); });
+  $("btn-retry").onclick = function () {
+    var ids = S.order.filter(function (id) { return S.ans[id] !== Q[id].ans; });
+    start(ids, "study", true);
+  };
+  $("btn-new").onclick = function () { S.order = []; S.done = false; home(); };
+
+  /* ---------- Desenvolupament ---------- */
+  var dl = $("dev-list");
+  DEV.forEach(function (d, i) {
+    var c = el("section", "card stack");
+    c.append(el("div", "label", "Pregunta " + (i + 1) + " · 10 punts"), el("h3", "", d.title), el("p", "", d.text));
+    var ta = el("textarea"); ta.id = "dev-ta-" + i; ta.placeholder = "Escriu aquí la teva resposta…"; ta.setAttribute("aria-label", "Resposta a la pregunta " + (i + 1));
+    var btn = el("button", "btn ghost", "Mostra la resposta model"); btn.type = "button";
+    var model = el("div", "model"); model.hidden = true;
+    model.append(el("b", "", "Punts clau"));
+    var ul = el("ul"); d.pts.forEach(function (p) { ul.append(el("li", "", p)); }); model.append(ul);
+    model.append(el("p", "dev-ref", "On trobar-ho: " + d.ref + "."));
+    btn.onclick = function () { model.hidden = !model.hidden; btn.textContent = model.hidden ? "Mostra la resposta model" : "Amaga la resposta model"; };
+    c.append(ta, btn, model); dl.append(c);
+  });
+
+  $("tab-test").onclick = home;
+  $("tab-dev").onclick = function () { show("dev"); };
+  home();
+})();
+</script>
